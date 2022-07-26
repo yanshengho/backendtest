@@ -22,8 +22,8 @@ class TopComment(Resource):
         c_group = comments_df.groupby(['post_id'])['comment_id'].size().reset_index(name = 'comment_count')
         p_result = posts_df[['post_id', 'post_title', 'post_body']].merge(c_group, how = 'left', left_on='post_id', right_on='post_id')\
                     .sort_values(by = 'comment_count', ascending = False)
-        p_result_key = p_result.to_key('records')
-        return p_result_key
+        p_result_dict = p_result.to_dict('records')
+        return p_result_dict
 
 class SearchComment(Resource):
 
@@ -42,14 +42,14 @@ class SearchComment(Resource):
 
         single_check = ['postId', 'id']
         contain_check = ['name', 'email', 'body']
-        for key in args:
-            if (key in single_check) & (args.get(key) is not None):
-                comments_df = comments_df.loc[(comments_df[key] == args.get(key))]
-            if (key in contain_check) & (args.get(key) is not None):
-                comments_df = comments_df.loc[(comments_df[key].str.contains(args[key], regex = False))]
+        for dict in args:
+            if (dict in single_check) & (args.get(dict) is not None):
+                comments_df = comments_df.loc[(comments_df[dict] == args.get(dict))]
+            if (dict in contain_check) & (args.get(dict) is not None):
+                comments_df = comments_df.loc[(comments_df[dict].str.contains(args[dict], regex = False))]
 
         comments_df.columns = ['post_id', 'comment_id', 'user_name', 'user_email', 'comment_body']
-        comment_filter_df = comments_df.to_key('records')
+        comment_filter_df = comments_df.to_dict('records')
 
         return comment_filter_df
 
